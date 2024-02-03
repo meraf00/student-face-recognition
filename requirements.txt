@@ -1,3 +1,5 @@
 opencv-python
-PIL
+pillow
 numpy
+matplotlib
+scikit-learn
