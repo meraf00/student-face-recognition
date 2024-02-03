@@ -1,10 +1,11 @@
+__pycache__
 venv
-
 
 images/*
 !images/.gitkeep
 
 cropped
+preprocessed_images
 
 models/*
 !models/.gitkeep
