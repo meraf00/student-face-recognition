@@ -1,0 +1,4 @@
+venv
+AI Students Picture-20240202T183258Z-001.zip
+images/*
+!images/.gitkeep
