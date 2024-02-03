@@ -1,8 +1,4 @@
 import numpy as np
-import numpy as np
-from PIL import Image
-import os
-
 
 def calculate_pca(X, num_components):
     n, _ = X.shape
