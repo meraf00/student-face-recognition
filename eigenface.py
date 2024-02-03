@@ -3,35 +3,6 @@ import numpy as np
 from PIL import Image
 import os
 
-def load_images(path=None):
-    if path is None:
-        path = os.path.join(os.getcwd(), "images")
-
-    images = []
-    students = []
-
-    for student in os.listdir(path):
-        student_path = os.path.join(path, student)
-
-        if os.path.isdir(student_path):
-
-            for image in os.listdir(student_path):
-                image_path = os.path.join(student_path, image)
-
-                if os.path.isfile(image_path):
-                    image = Image.open(image_path)
-                    image = image.convert("L")
-
-                    if image.size != (500, 500):
-                        image = image.resize((500, 500))
-
-                    image_vector = np.array(image, dtype=np.float64).flatten()
-
-                    images.append(image_vector)
-                    students.append(student)
-
-    return np.array(images), np.array(students)
-
 
 def calculate_pca(X, num_components):
     n, _ = X.shape
@@ -89,27 +60,6 @@ def closest_face(projections, projection_labels, p):
     )
 
 
-def calc_accuracy(expected, predicted):
-    return np.sum(expected.flatten() == predicted.flatten()) / len(expected)
-
-
-def confusion_matrix(expected, predicted, classes):
-    c_idx = {cls: idx for idx, cls in enumerate(classes)}
-
-    n = len(classes)
-
-    cm = np.zeros((n, n))
-
-    for y, y_pred in zip(expected, predicted):
-        if y in c_idx and y_pred in c_idx:
-            idx_y = c_idx[y]
-            idx_pred = c_idx[y_pred]
-
-            cm[idx_y][idx_pred] += 1
-
-    return cm
-
-
 class EigenFaces:
     def __init__(self, num_components=100):
         self.num_components = num_components
@@ -147,11 +97,8 @@ class EigenFaces:
             reconstructed = reconstruct(self.eigenvectors, p)
 
             rec_dist = np.linalg.norm((image - self.mean_face) - reconstructed)
-            rec_threshold = self.threshold * 1.43
 
-            # print(rec_dist, dist, threshold)
-
-            if rec_dist >= self.threshold and dist > rec_threshold:
+            if rec_dist >= self.threshold:
                 y_pred.append("NotFace")
 
             elif dist >= self.threshold:
