@@ -47,21 +47,18 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
 
-      var fileStream = http.ByteStream(imageFile.openRead());
-      var length = await imageFile.length();
-      var multipartFile = http.MultipartFile(
-        'file',
-        fileStream,
-        length,
-      );
-      request.files.add(multipartFile);
+      request.files
+          .add(await http.MultipartFile.fromPath('file', imageFile.path));
 
       // Send the request
       var response = await request.send();
 
+      String responseBody = await response.stream.bytesToString();
+      Map<String, dynamic> jsonResponse = json.decode(responseBody);
+
       if (response.statusCode == 200) {
         setState(() {
-          _serverResponse = 'Image sent successfully';
+          _serverResponse = jsonResponse['result'];
         });
       } else {
         setState(() {
@@ -92,14 +89,29 @@ class _MyHomePageState extends State<MyHomePage> {
                     ? const Center(child: Text('No image selected.'))
                     : Image.file(_imageFile!),
               ),
+              if (_serverResponse.isNotEmpty)
+                Text(
+                  _serverResponse,
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              const SizedBox(
+                height: 20,
+              ),
               Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
-                        onPressed: () {
-                          getImage(ImageSource.gallery);
+                        onPressed: () async {
+                          await getImage(ImageSource.gallery);
+                          if (_imageFile != null) {
+                            await sendImageToBackend(_imageFile!);
+                          }
                         },
                         child: const Row(children: [
                           Icon(Icons.image, size: 20),
@@ -109,8 +121,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       const SizedBox(width: 20),
                       ElevatedButton(
-                        onPressed: () {
-                          getImage(ImageSource.camera);
+                        onPressed: () async {
+                          await getImage(ImageSource.camera);
+                          if (_imageFile != null) {
+                            await sendImageToBackend(_imageFile!);
+                          }
                         },
                         child: const Row(children: [
                           Icon(Icons.camera, size: 20),
@@ -121,14 +136,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_imageFile != null) {
-                        sendImageToBackend(_imageFile!);
-                      }
-                    },
-                    child: const Text('Recognize Face'),
-                  ),
                 ],
               ),
             ],
