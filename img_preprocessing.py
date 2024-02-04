@@ -18,7 +18,7 @@ def apply_histogram_equalization(images):
     return equalized_images
 
 
-def apply_gaussian_blur(images, sigma=10.0, k=3):
+def apply_gaussian_blur(images, sigma=30.0, k=5):
     blurred_images = [cv2.GaussianBlur(image, (k, k), sigma) for image in images]
     return blurred_images
 
