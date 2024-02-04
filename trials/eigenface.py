@@ -2,7 +2,7 @@ import numpy as np
 from collections import Counter
 
 
-def knn_classifier(projections, labels, x, k=5):
+def knn_classifier(projections, labels, x, k=5, log=False):
     distances = [np.linalg.norm(x - pi) for pi in projections]
     indices = np.argsort(distances)[:k]
 
@@ -10,6 +10,9 @@ def knn_classifier(projections, labels, x, k=5):
     majority_vote = Counter(k_nearest_labels).most_common(1)
 
     label = majority_vote[0][0]
+
+    if log:
+        print(majority_vote)
 
     return label, distances[indices[0]]
 
@@ -33,7 +36,7 @@ def calculate_pca(X, num_components):
         eigenvectors[:, i] = eigenvectors[:, i] / np.linalg.norm(eigenvectors[:, i])
 
     idx = np.argsort(-eigenvalues)
-    eigenvalues, eigenvectors = eigenvalues[idx].real, eigenvectors[:, idx].real
+    eigenvalues, eigenvectors = eigenvalues[idx], eigenvectors[:, idx]
 
     return eigenvalues[:num_components], eigenvectors[:, :num_components], mean
 
@@ -64,9 +67,6 @@ def closest_face(projections, projection_labels, p):
 
     sorted_distances_idx = np.argsort(distances)
 
-    print(projection_labels[sorted_distances_idx])
-    print()
-
     return (
         projection_labels[sorted_distances_idx[0]],
         distances[sorted_distances_idx[0]],
@@ -74,8 +74,9 @@ def closest_face(projections, projection_labels, p):
 
 
 class EigenFaces:
-    def __init__(self, num_components=100):
+    def __init__(self, num_components=100, k=5):
         self.num_components = num_components
+        self.k = k
 
     def fit(self, x_train, y_train):
         self.projection_labels = y_train
@@ -93,11 +94,11 @@ class EigenFaces:
 
         self.projections = np.array(projections)
 
-        self.threshold = compute_threshold(self.projections)
+        self.threshold = compute_threshold(projections)
 
         return self
 
-    def predict(self, X):
+    def transform(self, X, log=False):
         y_pred = []
 
         for image in X:
@@ -105,7 +106,9 @@ class EigenFaces:
 
             p = project(self.eigenvectors, image, self.mean_face)
 
-            prediction, dist = closest_face(self.projections, self.projection_labels, p)
+            prediction, dist = knn_classifier(
+                self.projections, self.projection_labels, p, self.k, log
+            )
 
             reconstructed = reconstruct(self.eigenvectors, p)
 

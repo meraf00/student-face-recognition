@@ -10,4 +10,7 @@ preprocessed_images
 models/*
 !models/.gitkeep
 
+aligned_images
+augmented*
+
 local
