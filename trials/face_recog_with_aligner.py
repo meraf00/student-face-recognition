@@ -9,7 +9,7 @@ with open("models/eigenface_recognizer.pkl", "rb") as f:
     eigenface_recognizer = pickle.load(f)
 
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor("trials/shape_predictor_68_face_landmarks.dat")
 fa = FaceAligner(predictor, desiredFaceWidth=250, desiredFaceHeight=250)
 
 cap = cv2.VideoCapture(0)
@@ -37,7 +37,7 @@ while True:
 
         cv2.imshow("Aligned", preprocessed_image[0].reshape((250, 250)))
 
-        label = eigenface_recognizer.transform(preprocessed_image)
+        label = eigenface_recognizer.predict(preprocessed_image)
 
         cv2.putText(
             video_frame,

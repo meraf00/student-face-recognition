@@ -5,8 +5,7 @@ from img_preprocessing import preprocess_images
 
 
 with open("models/eigenface_recognizer.pkl", "rb") as f:
-    eigenface_recognizer = pickle.load(f)
-    print(dir(eigenface_recognizer))
+    eigenface_recognizer = pickle.load(f)    
 
 
 face_classifier = cv2.CascadeClassifier(

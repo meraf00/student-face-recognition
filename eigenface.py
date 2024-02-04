@@ -64,9 +64,6 @@ def closest_face(projections, projection_labels, p):
 
     sorted_distances_idx = np.argsort(distances)
 
-    print(projection_labels[sorted_distances_idx])
-    print()
-
     return (
         projection_labels[sorted_distances_idx[0]],
         distances[sorted_distances_idx[0]],
